@@ -7,16 +7,22 @@ const iconSmallElement = document.querySelectorAll('.icon-small img');
 const weekDayElement = document.querySelectorAll('.weekDay .text-weekDay');
 const tempMaxElement = document.querySelectorAll('.temperature-max');
 const tempMinElement = document.querySelectorAll('.temperature-min');
+
 console.log(weekDayElement);
 const getWeatherForecastByLocation = async () => {
     const response = await fetch('https://get.geojs.io/v1/ip/geo.json');
     const data = await response.json();
+    console.log(data)
+
     const weatherForecast = await fetch(`http://api.weatherapi.com/v1/current.json?key=512a90261096497bb74174453240711&q=${data.city}&aqi=no`);
     const allDataAboutWeather = await weatherForecast.json();
     renderWeatherInfo(data.city, allDataAboutWeather.current.condition.icon, allDataAboutWeather.current.condition.text, allDataAboutWeather.current.temp_c, new Date());
+
     const sevenDaysWeather = await fetch(`http://api.weatherapi.com/v1/forecast.json?key=512a90261096497bb74174453240711&q=${data.city}&days=7&aqi=no&alerts=no`);
     const allDataAboutSevenDaysWeather = await sevenDaysWeather.json();
     console.log(allDataAboutSevenDaysWeather);
+
+
     let sortedWeatherSevenDays = [];
     sortedWeatherSevenDays = allDataAboutSevenDaysWeather.forecast.forecastday.map(
         (weatherForOneDay) => {
@@ -27,27 +33,36 @@ const getWeatherForecastByLocation = async () => {
                 minTemp: weatherForOneDay.day.mintemp_c,
             }
             console.log(filteredWeatherForOneDay)
-            return filteredWeatherForOneDay;    /// 7 days []
+            return filteredWeatherForOneDay; /// 7 days [] 
         }
     )
     console.log(weekDayElement.length)
+
+
     const myWeathwerFunc = () => {
+
         weekDayElement.forEach((element, index) => {
             element.textContent = sortedWeatherSevenDays[index + 1].date;
-            //console.log(sortedWeatherSevenDays[index].date); 
+            //console.log(sortedWeatherSevenDays[index].date);
+            
         });
+
         iconSmallElement.forEach((element, index) => {
-            element.src = sortedWeatherSevenDays[index + 1].smallIcon;
+            element.src = sortedWeatherSevenDays[index].smallIcon;
         });
         tempMaxElement.forEach((element, index) => {
-            element.textContent = sortedWeatherSevenDays[index + 1].maxTemp;
+            element.textContent = sortedWeatherSevenDays[index].maxTemp;
         });
+
         tempMinElement.forEach((element, index) => {
-            element.textContent = sortedWeatherSevenDays[index + 1].minTemp;
+            element.textContent = sortedWeatherSevenDays[index].minTemp;
         });
     }
     myWeathwerFunc();
 }
+
+
+
 getWeatherForecastByLocation();
 function renderWeatherInfo(city, icon, condition, temperature, date) {
     locationElement.textContent = city;
